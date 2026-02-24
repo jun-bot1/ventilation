@@ -73,7 +73,16 @@ export const useConsultationStore = create<ConsultationState>()(
     }),
     {
       name: "navien-consultation",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => {
+        if (typeof window === 'undefined') {
+          return {
+            getItem: () => null,
+            setItem: () => {},
+            removeItem: () => {},
+          };
+        }
+        return sessionStorage;
+      }),
       partialize: (state) => ({
         selectedCategory: state.selectedCategory,
         selectedModel: state.selectedModel,
