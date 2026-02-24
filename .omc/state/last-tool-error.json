@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/seongjunmo/dev/ventilation/tailwind.config.ts\"}",
+  "error": "File does not exist. Note: your current working directory is /Users/seongjunmo/dev/ventilation.",
+  "timestamp": "2026-02-24T08:11:45.514Z",
+  "retry_count": 1
+}
