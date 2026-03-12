@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const ConsultationSchema = z.object({
   selectedCategory: z.enum(["dehumidifier", "air-purifier"]).optional(),
-  selectedModel: z.enum(["THE6500", "TAA931", "TAA530", "TAE331", "TAE530"]),
+  selectedModel: z.enum(["THE6500_150", "THE6500_200", "TAA931", "TAA530", "TAE330", "TAE530"]),
   orderType: z.enum(["rental", "purchase"]),
   paymentMethod: z.enum(["lotte", "hana"]),
   photoCount: z.coerce.number().int().min(0).max(4).optional(),
@@ -11,10 +11,11 @@ const ConsultationSchema = z.object({
 });
 
 const MODEL_CATEGORY_MAP: Record<string, "dehumidifier" | "air-purifier"> = {
-  THE6500: "dehumidifier",
+  THE6500_150: "dehumidifier",
+  THE6500_200: "dehumidifier",
   TAA931: "air-purifier",
   TAA530: "air-purifier",
-  TAE331: "air-purifier",
+  TAE330: "air-purifier",
   TAE530: "air-purifier",
 };
 

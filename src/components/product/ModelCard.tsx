@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Card from '@/components/ui/Card';
 import { cn, formatPrice, formatMonthlyPrice } from '@/lib/utils';
@@ -21,9 +22,8 @@ export default function ModelCard({ product, selected = false, onClick, index = 
     >
       <Card selected={selected} onClick={onClick}>
         <div className="flex gap-4">
-          {/* 이미지 플레이스홀더 */}
-          <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-xl flex items-center justify-center">
-            <span className="text-gray-400 text-xs font-medium text-center leading-tight px-1">{product.id}</span>
+          <div className="relative w-24 h-24 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden">
+            <Image src={product.image} alt={product.name} fill className="object-contain p-2" />
           </div>
           {/* 텍스트 영역 */}
           <div className="flex-1 min-w-0">
@@ -36,7 +36,7 @@ export default function ModelCard({ product, selected = false, onClick, index = 
             <p className="mt-0.5 text-sm text-gray-500">{product.subtitle}</p>
             <div className="mt-2 space-y-0.5">
               <p className="text-xs text-gray-500">
-                렌탈: <span className="font-medium text-gray-700">{formatMonthlyPrice(product.rentalPrice)}</span>
+                렌탈: <span className="font-medium text-gray-700">{formatMonthlyPrice(product.rentalPrice.selfManaged)}~</span>
               </p>
               <p className="text-xs text-gray-500">
                 구매: <span className="font-medium text-gray-700">{formatPrice(product.purchasePrice)}</span>

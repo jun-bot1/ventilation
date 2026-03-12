@@ -8,6 +8,7 @@ interface ConsultationState {
   selectedCategory: Category | null;
   selectedModel: ModelId | null;
   orderType: OrderType | null;
+  isNewInstallation: boolean;
   photos: Photos;
   photoPreviews: Record<string, string>;
   paymentMethod: PaymentCard | null;
@@ -17,6 +18,7 @@ interface ConsultationState {
   setCategory: (category: Category) => void;
   setModel: (model: ModelId) => void;
   setOrderType: (type: OrderType) => void;
+  setNewInstallation: (value: boolean) => void;
   setPhoto: (slot: keyof Photos, file: File | null) => void;
   setPhotoPreview: (slot: string, preview: string) => void;
   setPaymentMethod: (method: PaymentCard) => void;
@@ -32,6 +34,7 @@ const initialState = {
   selectedCategory: null as Category | null,
   selectedModel: null as ModelId | null,
   orderType: null as OrderType | null,
+  isNewInstallation: false,
   photos: {
     leftMachine: null,
     rightMachine: null,
@@ -51,6 +54,7 @@ export const useConsultationStore = create<ConsultationState>()(
       setCategory: (category) => set({ selectedCategory: category, selectedModel: null }),
       setModel: (model) => set({ selectedModel: model }),
       setOrderType: (type) => set({ orderType: type }),
+      setNewInstallation: (value) => set({ isNewInstallation: value }),
       setPhoto: (slot, file) =>
         set((state) => ({
           photos: { ...state.photos, [slot]: file },
@@ -68,6 +72,7 @@ export const useConsultationStore = create<ConsultationState>()(
         return Object.values(photos).filter(Boolean).length;
       },
       canProceedFromPhotos: () => {
+        if (get().isNewInstallation) return true;
         return get().getPhotoCount() >= 2;
       },
     }),
@@ -87,6 +92,7 @@ export const useConsultationStore = create<ConsultationState>()(
         selectedCategory: state.selectedCategory,
         selectedModel: state.selectedModel,
         orderType: state.orderType,
+        isNewInstallation: state.isNewInstallation,
         paymentMethod: state.paymentMethod,
         currentStep: state.currentStep,
         photoPreviews: state.photoPreviews,

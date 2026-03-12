@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Card from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
@@ -20,9 +21,13 @@ export default function CategoryCard({ category, selected = false, onClick, inde
       transition={{ delay: index * 0.08, duration: 0.3 }}
     >
       <Card selected={selected} onClick={onClick} className="overflow-hidden p-0">
-        {/* 이미지 플레이스홀더 */}
-        <div className="aspect-[4/3] bg-gray-100 rounded-t-2xl flex items-center justify-center">
-          <span className="text-gray-400 text-sm font-medium">{category.name}</span>
+        <div className="relative aspect-[4/3] bg-gray-50 rounded-t-2xl overflow-hidden">
+          <Image
+            src={category.image}
+            alt={category.name}
+            fill
+            className="object-contain p-6"
+          />
         </div>
         <div className="p-5">
           <h2 className={cn(

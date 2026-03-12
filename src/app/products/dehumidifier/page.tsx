@@ -9,7 +9,7 @@ import { PRODUCTS } from '@/lib/constants';
 export default function DehumidifierPage() {
   const router = useRouter();
 
-  const models = [PRODUCTS['THE6500']];
+  const models = [PRODUCTS['THE6500_150'], PRODUCTS['THE6500_200']];
 
   return (
     <div className="min-h-dvh bg-white pb-10">
@@ -31,7 +31,7 @@ export default function DehumidifierPage() {
         className="px-5 pb-6"
       >
         <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-          제습 환기청정기
+          매직플러스 제습환기청정기
         </h1>
         <p className="mt-1.5 text-sm text-gray-500">습도 조절과 환기를 한번에</p>
       </motion.div>

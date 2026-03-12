@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import type { Product } from '@/types';
 
@@ -14,9 +15,8 @@ export default function ModelDetail({ product }: ModelDetailProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      {/* 큰 이미지 플레이스홀더 */}
-      <div className="aspect-[4/3] bg-gray-100 rounded-2xl flex items-center justify-center mx-5">
-        <span className="text-gray-400 text-lg font-semibold">{product.id}</span>
+      <div className="relative aspect-[4/3] bg-gray-50 rounded-2xl overflow-hidden mx-5">
+        <Image src={product.image} alt={product.name} fill className="object-contain p-8" />
       </div>
 
       {/* 모델 정보 */}

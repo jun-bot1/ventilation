@@ -21,6 +21,7 @@ export default function ReviewPage() {
     photos,
     photoPreviews,
     paymentMethod,
+    isNewInstallation,
   } = useConsultationStore();
 
   const handleBack = () => {
@@ -40,7 +41,8 @@ export default function ReviewPage() {
           selectedModel,
           orderType,
           paymentMethod,
-          photoCount: Object.values(photos).filter(Boolean).length,
+          isNewInstallation,
+          photoCount: isNewInstallation ? 0 : Object.values(photos).filter(Boolean).length,
           submittedAt: new Date().toISOString(),
         }),
       });
@@ -127,45 +129,52 @@ export default function ReviewPage() {
           </div>
         </section>
 
-        {/* 업로드된 사진 */}
+        {/* 설치 환경 */}
         <section className="mb-8">
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            업로드 사진 ({uploadedPhotos.length}장)
+            설치 환경
           </h3>
-          <div className="grid grid-cols-4 gap-2">
-            {PHOTO_SLOTS.map((slot) => {
-              const preview = photoPreviews[slot];
-              const hasPhoto = !!photos[slot] || !!preview;
-              const { label, required } = PHOTO_SLOT_LABELS[slot];
+          {isNewInstallation ? (
+            <div className="bg-gray-50 rounded-2xl p-4">
+              <p className="text-base font-semibold text-gray-900">신규 설치</p>
+              <p className="text-sm text-gray-500 mt-0.5">기존 환기 기계 없음</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-2">
+              {PHOTO_SLOTS.map((slot) => {
+                const preview = photoPreviews[slot];
+                const hasPhoto = !!photos[slot] || !!preview;
+                const { label, required } = PHOTO_SLOT_LABELS[slot];
 
-              return (
-                <div key={slot} className="flex flex-col gap-1">
-                  <div
-                    className={[
-                      'relative aspect-square rounded-xl overflow-hidden border',
-                      hasPhoto ? 'border-primary-300' : 'border-gray-200 bg-gray-50',
-                    ].join(' ')}
-                  >
-                    {hasPhoto && preview ? (
-                      <Image
-                        src={preview}
-                        alt={label}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <span className="text-gray-300 text-lg">
-                          {required ? '!' : '–'}
-                        </span>
-                      </div>
-                    )}
+                return (
+                  <div key={slot} className="flex flex-col gap-1">
+                    <div
+                      className={[
+                        'relative aspect-square rounded-xl overflow-hidden border',
+                        hasPhoto ? 'border-primary-300' : 'border-gray-200 bg-gray-50',
+                      ].join(' ')}
+                    >
+                      {hasPhoto && preview ? (
+                        <Image
+                          src={preview}
+                          alt={label}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <span className="text-gray-300 text-lg">
+                            {required ? '!' : '–'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-gray-500 text-center leading-tight">{label}</span>
                   </div>
-                  <span className="text-[10px] text-gray-500 text-center leading-tight">{label}</span>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         <div className="p-4 bg-primary-50 rounded-2xl border border-primary-100">

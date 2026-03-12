@@ -12,7 +12,7 @@ export default function AirPurifierPage() {
   const models = [
     PRODUCTS['TAA931'],
     PRODUCTS['TAA530'],
-    PRODUCTS['TAE331'],
+    PRODUCTS['TAE330'],
     PRODUCTS['TAE530'],
   ];
 
@@ -36,7 +36,7 @@ export default function AirPurifierPage() {
         className="px-5 pb-6"
       >
         <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-          환기청정기
+          매직플러스 환기청정기
         </h1>
         <p className="mt-1.5 text-sm text-gray-500">깨끗한 공기를 우리 집으로</p>
       </motion.div>

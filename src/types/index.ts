@@ -1,10 +1,11 @@
 export type Category = "dehumidifier" | "air-purifier";
 
 export type ModelId =
-  | "THE6500"
+  | "THE6500_150"
+  | "THE6500_200"
   | "TAA931"
   | "TAA530"
-  | "TAE331"
+  | "TAE330"
   | "TAE530";
 
 export type OrderType = "rental" | "purchase";
@@ -18,6 +19,12 @@ export interface ProductSpec {
   value: string;
 }
 
+export interface RentalPrice {
+  selfManaged: number;   // 자가관리 월 렌탈료
+  visitManaged: number;  // 방문관리 월 렌탈료
+  period: number;        // 렌탈 기간 (개월)
+}
+
 export interface Product {
   id: ModelId;
   category: Category;
@@ -25,8 +32,8 @@ export interface Product {
   subtitle: string;
   description: string;
   image: string;
-  rentalPrice: number | null;
-  purchasePrice: number | null;
+  rentalPrice: RentalPrice;
+  purchasePrice: number;
   specs: ProductSpec[];
 }
 
@@ -64,8 +71,8 @@ export interface ConsultationData {
 }
 
 export const PHOTO_SLOT_LABELS: Record<PhotoSlot, { label: string; required: boolean }> = {
-  leftMachine: { label: "환기 기계 (왼쪽)", required: true },
-  rightMachine: { label: "환기 기계 (오른쪽)", required: true },
+  leftMachine: { label: "기존 환기 기계 (왼쪽)", required: true },
+  rightMachine: { label: "기존 환기 기계 (오른쪽)", required: true },
   diffuser1: { label: "내부 디퓨저 1", required: false },
   diffuser2: { label: "내부 디퓨저 2", required: false },
 };

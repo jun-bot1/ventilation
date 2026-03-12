@@ -20,19 +20,19 @@ export default function PriceTable({ product }: PriceTableProps) {
       <div className="space-y-3">
         {/* 렌탈 가격 */}
         <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="inline-block px-2 py-0.5 bg-primary-50 text-primary-600 text-xs font-semibold rounded-full mb-1.5">
-                렌탈
-              </span>
-              <p className="text-sm text-gray-500">매월 부담 없이</p>
+          <div className="flex items-center justify-between mb-3">
+            <span className="inline-block px-2 py-0.5 bg-primary-50 text-primary-600 text-xs font-semibold rounded-full">
+              렌탈 ({product.rentalPrice.period}개월)
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">자가관리</p>
+              <p className="text-xl font-bold text-primary-500">{formatMonthlyPrice(product.rentalPrice.selfManaged)}</p>
             </div>
-            <div className="text-right">
-              {product.rentalPrice === null ? (
-                <p className="text-base font-semibold text-gray-400">추후 안내</p>
-              ) : (
-                <p className="text-xl font-bold text-primary-500">{formatMonthlyPrice(product.rentalPrice)}</p>
-              )}
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-500">방문관리</p>
+              <p className="text-xl font-bold text-primary-500">{formatMonthlyPrice(product.rentalPrice.visitManaged)}</p>
             </div>
           </div>
         </div>
@@ -47,21 +47,11 @@ export default function PriceTable({ product }: PriceTableProps) {
               <p className="text-sm text-gray-500">한 번에 내 것으로</p>
             </div>
             <div className="text-right">
-              {product.purchasePrice === null ? (
-                <p className="text-base font-semibold text-gray-400">추후 안내</p>
-              ) : (
-                <p className="text-xl font-bold text-gray-900">{formatPrice(product.purchasePrice)}</p>
-              )}
+              <p className="text-xl font-bold text-gray-900">{formatPrice(product.purchasePrice)}</p>
             </div>
           </div>
         </div>
       </div>
-
-      {(product.rentalPrice === null || product.purchasePrice === null) && (
-        <p className="mt-3 text-xs text-gray-400 text-center">
-          정확한 가격은 상담을 통해 안내드립니다
-        </p>
-      )}
     </motion.div>
   );
 }
