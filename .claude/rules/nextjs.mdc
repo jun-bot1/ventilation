@@ -1,0 +1,56 @@
+---
+description: Buzzle 프로젝트의 Next.js App Router 규칙.
+globs: **/*.tsx,**/*.ts,src/**/*.ts,src/**/*.tsx
+alwaysApply: false
+---
+# Next.js Rules
+
+## Project Structure
+- Use the App Router directory structure
+- Components must be placed in `src/components/`, NOT in `app/` directory
+- Place utilities and helpers in `src/utils` or `lib` directory
+- Use the `@/*` path alias (maps to `./src/*`)
+
+## 'use client' 사용 기준
+
+- React hooks(`useState`, `useEffect`, TanStack Query hooks, Zustand selector 등)를 직접 호출하는 컴포넌트에만 선언
+- 부모가 `'use client'`이면 자식은 자동으로 client component — 자식에 중복 선언 금지
+- 순수 presentational 컴포넌트(props만 받아 렌더링)에는 선언하지 않음
+
+## Pages
+- Pages are thin server components that render a single Template component:
+```tsx
+const Page = () => <SomeTemplate />;
+export default Page;
+```
+
+## Components
+- Use Server Components by default
+- Mark client components explicitly with 'use client' (위 기준 참고)
+- Wrap client components in Suspense with fallback
+- Use dynamic loading for non-critical components
+- Implement proper error boundaries
+
+## Performance
+- Optimize images: Use WebP format, size data, lazy loading
+- Minimize use of 'useEffect' and 'setState'
+- Favor Server Components (RSC) where possible
+- Use dynamic loading for non-critical components
+- Implement proper caching strategies
+
+## Data Fetching
+- Use Server Components for data fetching when possible
+- Implement proper error handling for data fetching
+- Use appropriate caching strategies
+- Handle loading and error states appropriately
+
+## Routing
+- Use the App Router conventions
+- Implement proper loading and error states for routes
+- Use dynamic routes appropriately
+
+## State Management
+- Minimize client-side state
+- Use React Context sparingly
+- Prefer server state when possible
+- Implement proper loading states

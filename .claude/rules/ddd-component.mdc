@@ -1,0 +1,50 @@
+---
+description: Buzzle 프로젝트의 DDD + Atomic Design 컴포넌트 아키텍처 규칙. 컴포넌트 작성/수정 시 반드시 참조.
+globs: src/components/**,src/app/**/components/**
+alwaysApply: false
+---
+# DDD 컴포넌트 아키텍처
+
+## 계층 구조 및 Hook 제한
+
+| 레벨 | 경로 | 구성 | Hook 제한 |
+|------|------|------|-----------|
+| Atom | `atoms/` | 최소 UI 요소 (Input, Text, Icon 등) | hooks 사용 금지 |
+| Molecule | `molecules/` | Atom + Atom | useState, useCallback, useMemo, useRef만 허용 |
+| Organism | `organisms/` | Atom + Molecule | 모든 hooks 허용 (useQuery, useState, useEffect 등) |
+| Template | `templates/` | Atom + Molecule + Organism (UI 1:1 매칭) | hooks 사용 금지 |
+| Page | `app/**/page.tsx` | Template + serverAction | Server Component (client hooks 불가) |
+
+ESLint `local/ddd-hook-restriction`으로 강제됨.
+
+## Import 계층
+
+ESLint `local/ddd-import-hierarchy`로 강제:
+- Atom → 다른 atoms, 공통 유틸만
+- Molecule → atoms만
+- Organism → atoms, molecules만
+- Template → atoms, molecules, organisms
+
+상위 레벨을 import하면 ESLint 에러 발생.
+
+## Hook 추상화 원칙
+
+- Orval 사용 시: `src/hooks/apis/`에 위치
+- Orval 미사용 시: 각 DDD 도메인 내 `hooks/apis/`에 위치
+- 공통 함수/훅/타입은 최소한으로 유지
+
+## 컴포넌트 구조 규칙
+
+- 컴포넌트는 반드시 `src/components/` 아래에 위치 (app/ 디렉토리 내부에 컴포넌트 파일 금지)
+- 정적 상수(`const S = {}`, 배열, 객체 등)는 컴포넌트 함수 외부에 선언 (리렌더링마다 재생성 방지)
+- Arrow function 컴포넌트만 사용 (ESLint로 강제)
+
+## barrel file (index.ts) 금지
+
+- re-export만 하는 `index.ts` 파일을 만들지 않는다
+- 항상 개별 파일에서 직접 import: `import { Foo } from '@/components/organisms/dashboard/Foo'`
+
+## Layout 규칙
+
+- Next.js App Router의 `layout.tsx`를 사용한다
+- `src/components/templates/`에 레이아웃 컴포넌트를 만들지 않는다
