@@ -3,14 +3,23 @@ export type Category = "dehumidifier" | "air-purifier";
 export type ModelId =
   | "THE6500_150"
   | "THE6500_200"
-  | "TAA931"
+  | "TAA531"
   | "TAA530"
   | "TAE330"
   | "TAE530";
 
 export type OrderType = "rental" | "purchase";
 
-export type PaymentCard = "lotte" | "hana";
+export type InstallationType = "new-building" | "renovation";
+
+export type PaymentCard = "lotte" | "hana" | "none";
+
+export interface CardDiscountTier {
+  minSpend: string;
+  discount: string;
+  promotion: string;
+  total: string;
+}
 
 export type PhotoSlot = "leftMachine" | "rightMachine" | "diffuser1" | "diffuser2";
 
@@ -23,6 +32,21 @@ export interface RentalPrice {
   selfManaged: number;   // 자가관리 월 렌탈료
   visitManaged: number;  // 방문관리 월 렌탈료
   period: number;        // 렌탈 기간 (개월)
+}
+
+export type PyeongId = '36' | '48';
+export type ControllerId = 'basic' | 'wide' | 'allinone';
+export type MonitorId = 'basic' | 'radon';
+export type PriceKey = `${ControllerId}_${MonitorId}`;
+
+export interface PriceOption {
+  rental: number;
+  purchase: number;
+}
+
+export interface SelectOption {
+  id: string;
+  label: string;
 }
 
 export interface Product {
@@ -64,23 +88,12 @@ export interface Photos {
 export interface ConsultationData {
   selectedCategory: Category | null;
   selectedModel: ModelId | null;
+  selectedPyeong: PyeongId | null;
+  selectedController: ControllerId;
+  selectedMonitor: MonitorId;
   orderType: OrderType | null;
   photos: Photos;
   paymentMethod: PaymentCard | null;
   currentStep: number;
 }
 
-export const PHOTO_SLOT_LABELS: Record<PhotoSlot, { label: string; required: boolean }> = {
-  leftMachine: { label: "기존 환기 기계 (왼쪽)", required: true },
-  rightMachine: { label: "기존 환기 기계 (오른쪽)", required: true },
-  diffuser1: { label: "내부 디퓨저 1", required: false },
-  diffuser2: { label: "내부 디퓨저 2", required: false },
-};
-
-export const STEP_LABELS = [
-  "제품 선택",
-  "주문 방식",
-  "사진 업로드",
-  "결제 방식",
-  "확인",
-] as const;

@@ -1,19 +1,17 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { PRODUCTS, PAYMENT_CARDS } from '@/lib/constants';
-import { PHOTO_SLOT_LABELS } from '@/types';
-import type { ModelId, OrderType, PaymentCard, PhotoSlot } from '@/types';
-
-const PHOTO_SLOTS: PhotoSlot[] = ['leftMachine', 'rightMachine', 'diffuser1', 'diffuser2'];
+import { PHOTO_SLOTS, PHOTO_SLOT_LABELS } from '@/lib/constants';
+import ReviewSection from '@/components/order/ReviewSection';
+import type { InstallationType, ModelId, OrderType, PaymentCard } from '@/types';
 
 interface OrderSummaryProps {
   selectedModel: ModelId;
   orderType: OrderType;
   paymentMethod: PaymentCard;
   photoPreviews: Record<string, string>;
-  isNewInstallation: boolean;
+  installationType: InstallationType;
 }
 
 export default function OrderSummary({
@@ -21,21 +19,15 @@ export default function OrderSummary({
   orderType,
   paymentMethod,
   photoPreviews,
-  isNewInstallation,
+  installationType,
 }: OrderSummaryProps) {
+  const isNewInstallation = installationType === 'new-building';
   const product = PRODUCTS[selectedModel];
   const card = PAYMENT_CARDS[paymentMethod];
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* 선택 제품 */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-500">선택 제품</h3>
-          <Link href="/products" className="text-sm text-gray-500 hover:text-gray-700">
-            수정
-          </Link>
-        </div>
+    <div className="flex flex-col">
+      <ReviewSection title="선택 제품" editHref="/products">
         <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
           <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white flex-shrink-0">
             <Image src={product.image} alt={product.name} fill className="object-contain p-1" />
@@ -45,16 +37,9 @@ export default function OrderSummary({
             <p className="text-sm text-gray-500 mt-0.5">{product.subtitle}</p>
           </div>
         </div>
-      </section>
+      </ReviewSection>
 
-      {/* 주문 방식 */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-500">주문 방식</h3>
-          <Link href="/order" className="text-sm text-gray-500 hover:text-gray-700">
-            수정
-          </Link>
-        </div>
+      <ReviewSection title="주문 방식" editHref="/order">
         <div className="bg-gray-50 rounded-2xl p-4">
           <p className="text-base font-semibold text-gray-900">
             {orderType === 'rental' ? '렌탈' : '구매'}
@@ -63,16 +48,9 @@ export default function OrderSummary({
             {orderType === 'rental' ? '부담 없이 시작하기' : '한 번에 구매하기'}
           </p>
         </div>
-      </section>
+      </ReviewSection>
 
-      {/* 설치 환경 */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-500">설치 환경</h3>
-          <Link href="/order/photos" className="text-sm text-gray-500 hover:text-gray-700">
-            수정
-          </Link>
-        </div>
+      <ReviewSection title="설치 환경" editHref="/order/photos">
         {isNewInstallation ? (
           <div className="bg-gray-50 rounded-2xl p-4">
             <p className="text-base font-semibold text-gray-900">신규 설치</p>
@@ -99,22 +77,17 @@ export default function OrderSummary({
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-gray-500 text-center leading-tight truncate">{label}</span>
+                  <span className="text-[10px] text-gray-500 text-center leading-tight truncate">
+                    {label}
+                  </span>
                 </div>
               );
             })}
           </div>
         )}
-      </section>
+      </ReviewSection>
 
-      {/* 결제 카드 */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-500">결제 카드</h3>
-          <Link href="/order/payment" className="text-sm text-gray-500 hover:text-gray-700">
-            수정
-          </Link>
-        </div>
+      <ReviewSection title="결제 카드" editHref="/order/payment">
         <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-3">
           <div
             className="w-12 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -129,7 +102,7 @@ export default function OrderSummary({
             <p className="text-xs text-gray-500">{card.discount}</p>
           </div>
         </div>
-      </section>
+      </ReviewSection>
     </div>
   );
 }

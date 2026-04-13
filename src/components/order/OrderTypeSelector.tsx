@@ -1,6 +1,7 @@
 'use client';
 
 import Card from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 import type { OrderType } from '@/types';
 
 interface OrderTypeSelectorProps {
@@ -39,12 +40,12 @@ export default function OrderTypeSelector({ selected, onSelect }: OrderTypeSelec
               <p className="text-sm text-gray-500 mt-2 leading-relaxed">{option.description}</p>
             </div>
             <div
-              className={[
+              className={cn(
                 'w-6 h-6 rounded-full border-2 ml-3 mt-0.5 flex-shrink-0 flex items-center justify-center transition-all',
                 selected === option.id
                   ? 'border-primary-500 bg-primary-500'
-                  : 'border-gray-300',
-              ].join(' ')}
+                  : 'border-gray-300'
+              )}
             >
               {selected === option.id && (
                 <div className="w-2.5 h-2.5 rounded-full bg-white" />

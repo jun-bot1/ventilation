@@ -13,6 +13,3 @@ export function formatMonthlyPrice(price: number): string {
   return "월 " + new Intl.NumberFormat("ko-KR").format(price) + "원";
 }
 
-export function getPhotoCount(photos: Record<string, File | null>): number {
-  return Object.values(photos).filter(Boolean).length;
-}

@@ -22,18 +22,12 @@ export default function PriceTable({ product }: PriceTableProps) {
         <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between mb-3">
             <span className="inline-block px-2 py-0.5 bg-primary-50 text-primary-600 text-xs font-semibold rounded-full">
-              렌탈 ({product.rentalPrice.period}개월)
+              렌탈 6년 ({product.rentalPrice.period}개월)
             </span>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">자가관리</p>
-              <p className="text-xl font-bold text-primary-500">{formatMonthlyPrice(product.rentalPrice.selfManaged)}</p>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">방문관리</p>
-              <p className="text-xl font-bold text-primary-500">{formatMonthlyPrice(product.rentalPrice.visitManaged)}</p>
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">방문관리 포함 (관리주기 6개월)</p>
+            <p className="text-xl font-bold text-primary-500">{formatMonthlyPrice(product.rentalPrice.visitManaged)}</p>
           </div>
         </div>
 

@@ -1,10 +1,8 @@
 'use client';
 
-import { PHOTO_SLOT_LABELS } from '@/types';
+import { PHOTO_SLOT_LABELS, PHOTO_SLOTS } from '@/lib/constants';
 import type { PhotoSlot } from '@/types';
 import PhotoUploadSlot from './PhotoUploadSlot';
-
-const PHOTO_SLOTS: PhotoSlot[] = ['leftMachine', 'rightMachine', 'diffuser1', 'diffuser2'];
 
 interface PhotoUploadGridProps {
   photoPreviews: Record<string, string>;

@@ -1,22 +1,18 @@
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
+import tseslint from 'typescript-eslint';
 import prettier from 'eslint-plugin-prettier';
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tsparser from '@typescript-eslint/parser';
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import { localPlugin } from './lib/eslint-rules/index.mjs';
 
 const eslintConfig = defineConfig([
 	...nextVitals,
+	...tseslint.configs.strict,
 	{
 		plugins: {
 			prettier,
-			'@typescript-eslint': tseslint,
 			'better-tailwindcss': betterTailwindcss,
 			local: localPlugin,
-		},
-		languageOptions: {
-			parser: tsparser,
 		},
 		settings: {
 			'better-tailwindcss': {

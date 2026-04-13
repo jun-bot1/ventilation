@@ -97,7 +97,7 @@ export default function CompletePage() {
               </span>
             </div>
           )}
-          {card && (
+          {orderType === 'rental' && card && (
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-500">결제 카드</span>
               <span className="text-sm font-medium text-gray-900">{card.name}</span>
@@ -109,8 +109,8 @@ export default function CompletePage() {
       {/* 구분선 */}
       <div className="border-t border-gray-200 my-8 mx-5" />
 
-      {/* 카드 발급 안내 */}
-      {card && (
+      {/* 카드 발급 안내 (렌탈만) */}
+      {orderType === 'rental' && card && card.id !== 'none' && (
         <motion.div
           className="px-5"
           initial={{ opacity: 0, y: 10 }}

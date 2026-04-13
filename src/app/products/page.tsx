@@ -17,22 +17,22 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-white pb-10">
+    <div className="h-dvh bg-white flex flex-col overflow-hidden">
       {/* 헤더 */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="px-5 pt-14 pb-6"
+        className="shrink-0 px-5 pt-[4dvh] pb-[2dvh]"
       >
-        <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+        <h1 className="text-[clamp(20px,3.5dvh,28px)] font-bold text-gray-900 leading-tight">
           어떤 제품을<br />찾고 계세요?
         </h1>
-        <p className="mt-2 text-sm text-gray-500">원하시는 제품 유형을 선택해주세요</p>
+        <p className="mt-[0.8dvh] text-[clamp(12px,1.6dvh,14px)] text-gray-500">원하시는 제품 유형을 선택해주세요</p>
       </motion.div>
 
       {/* 카테고리 카드 목록 */}
-      <div className="px-5 space-y-4">
+      <div className="flex-1 min-h-0 px-5 pb-[2dvh] flex flex-col gap-[clamp(8px,1.2dvh,16px)]">
         {CATEGORY_LIST.map((category, index) => (
           <CategoryCard
             key={category.id}

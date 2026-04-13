@@ -1,92 +1,225 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import fs from "fs";
+import path from "path";
 
-const ConsultationSchema = z.object({
-  selectedCategory: z.enum(["dehumidifier", "air-purifier"]).optional(),
-  selectedModel: z.enum(["THE6500_150", "THE6500_200", "TAA931", "TAA530", "TAE330", "TAE530"]),
-  orderType: z.enum(["rental", "purchase"]),
-  paymentMethod: z.enum(["lotte", "hana"]),
-  photoCount: z.coerce.number().int().min(0).max(4).optional(),
-  submittedAt: z.string().optional(),
-});
+const DATA_DIR = path.join(process.cwd(), ".data");
+const DATA_FILE = path.join(DATA_DIR, "consultations.json");
+const UPLOADS_DIR = path.join(process.cwd(), ".data", "uploads");
 
-const MODEL_CATEGORY_MAP: Record<string, "dehumidifier" | "air-purifier"> = {
-  THE6500_150: "dehumidifier",
-  THE6500_200: "dehumidifier",
-  TAA931: "air-purifier",
-  TAA530: "air-purifier",
-  TAE330: "air-purifier",
-  TAE530: "air-purifier",
-};
+const PHOTO_SLOTS = ["leftMachine", "rightMachine", "diffuser1", "diffuser2"];
+const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "heic"]);
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+function ensureDirs() {
+  for (const dir of [DATA_DIR, UPLOADS_DIR]) {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+interface ConsultationRecord {
+  consultationId: string;
+  selectedCategory: string;
+  selectedModel: string;
+  orderType: string;
+  paymentMethod: string;
+  installationType: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  customerAddressDetail: string;
+  selectedPyeong: string;
+  selectedController: string;
+  selectedMonitor: string;
+  rentalPrice: number;
+  purchasePrice: number;
+  pyeongLabel: string;
+  controllerLabel: string;
+  monitorLabel: string;
+  photos: Record<string, string>;
+  submittedAt: string;
+  receivedAt: string;
+}
+
+function readConsultations(): ConsultationRecord[] {
+  ensureDirs();
+  if (!fs.existsSync(DATA_FILE)) return [];
+  const raw = fs.readFileSync(DATA_FILE, "utf-8");
+  return JSON.parse(raw);
+}
+
+function saveConsultations(data: ConsultationRecord[]) {
+  ensureDirs();
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
+}
+
+export async function GET() {
+  const consultations = readConsultations();
+  consultations.sort(
+    (a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime()
+  );
+  return NextResponse.json({ success: true, data: consultations });
+}
 
 export async function POST(request: NextRequest) {
-  const contentType = request.headers.get("content-type") ?? "";
+  try {
+    ensureDirs();
 
-  let rawData: Record<string, unknown>;
+    const consultationId = `NV-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    const receivedAt = new Date().toISOString();
 
-  if (contentType.includes("application/json")) {
-    try {
-      rawData = await request.json();
-    } catch {
-      return NextResponse.json(
-        { success: false, error: "잘못된 요청 형식입니다." },
-        { status: 400 }
-      );
-    }
-  } else if (
-    contentType.includes("multipart/form-data") ||
-    contentType.includes("application/x-www-form-urlencoded")
-  ) {
-    try {
+    // 상담별 사진 폴더
+    const photoDir = path.join(UPLOADS_DIR, consultationId);
+
+    const contentType = request.headers.get("content-type") ?? "";
+    let selectedCategory = "";
+    let selectedModel = "";
+    let orderType = "";
+    let paymentMethod = "";
+    let installationType = "";
+    let customerName = "";
+    let customerPhone = "";
+    let customerAddress = "";
+    let customerAddressDetail = "";
+    let selectedPyeong = "";
+    let selectedController = "";
+    let selectedMonitor = "";
+    let rentalPrice = 0;
+    let purchasePrice = 0;
+    let pyeongLabel = "";
+    let controllerLabel = "";
+    let monitorLabel = "";
+    let submittedAt = receivedAt;
+    const photos: Record<string, string> = {};
+
+    if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
-      const model = formData.get("model") as string | null;
-      rawData = {
-        selectedModel: model,
-        selectedCategory: model ? MODEL_CATEGORY_MAP[model] : undefined,
-        orderType: formData.get("orderType"),
-        paymentMethod: formData.get("paymentMethod"),
-      };
-    } catch {
+
+      selectedCategory = (formData.get("selectedCategory") as string) ?? "";
+      selectedModel = (formData.get("selectedModel") as string) ?? "";
+      orderType = (formData.get("orderType") as string) ?? "";
+      paymentMethod = (formData.get("paymentMethod") as string) ?? "";
+      installationType = (formData.get("installationType") as string) ?? "";
+      customerName = (formData.get("customerName") as string) ?? "";
+      customerPhone = (formData.get("customerPhone") as string) ?? "";
+      customerAddress = (formData.get("customerAddress") as string) ?? "";
+      customerAddressDetail = (formData.get("customerAddressDetail") as string) ?? "";
+      submittedAt = (formData.get("submittedAt") as string) ?? receivedAt;
+      selectedPyeong = (formData.get("selectedPyeong") as string) ?? "";
+      selectedController = (formData.get("selectedController") as string) ?? "";
+      selectedMonitor = (formData.get("selectedMonitor") as string) ?? "";
+      rentalPrice = parseInt((formData.get("rentalPrice") as string) ?? "0", 10);
+      purchasePrice = parseInt((formData.get("purchasePrice") as string) ?? "0", 10);
+      pyeongLabel = (formData.get("pyeongLabel") as string) ?? "";
+      controllerLabel = (formData.get("controllerLabel") as string) ?? "";
+      monitorLabel = (formData.get("monitorLabel") as string) ?? "";
+
+      // 사진 파일 저장
+      for (const slot of PHOTO_SLOTS) {
+        const file = formData.get(slot);
+        if (file && file instanceof File && file.size > 0) {
+          if (file.size > MAX_FILE_SIZE) {
+            return NextResponse.json(
+              { success: false, error: `파일 크기가 10MB를 초과합니다. (${slot})` },
+              { status: 413 }
+            );
+          }
+          const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+          if (!ALLOWED_EXTENSIONS.has(ext)) {
+            return NextResponse.json(
+              { success: false, error: `허용되지 않는 파일 형식입니다. (${slot}: .${ext})` },
+              { status: 422 }
+            );
+          }
+          if (!fs.existsSync(photoDir)) fs.mkdirSync(photoDir, { recursive: true });
+          const filename = `${slot}.${ext}`;
+          const buffer = Buffer.from(await file.arrayBuffer());
+          fs.writeFileSync(path.join(photoDir, filename), buffer);
+          photos[slot] = `/api/uploads/${consultationId}/${filename}`;
+        }
+      }
+    } else if (contentType.includes("application/json")) {
+      const json = await request.json();
+      selectedCategory = json.selectedCategory ?? "";
+      selectedModel = json.selectedModel ?? "";
+      orderType = json.orderType ?? "";
+      paymentMethod = json.paymentMethod ?? "";
+      installationType = json.installationType ?? "";
+      customerName = json.customerName ?? "";
+      customerPhone = json.customerPhone ?? "";
+      customerAddress = json.customerAddress ?? "";
+      customerAddressDetail = json.customerAddressDetail ?? "";
+      submittedAt = json.submittedAt ?? receivedAt;
+    } else {
       return NextResponse.json(
-        { success: false, error: "잘못된 요청 형식입니다." },
-        { status: 400 }
+        { success: false, error: "지원하지 않는 Content-Type입니다." },
+        { status: 415 }
       );
     }
-  } else {
-    return NextResponse.json(
-      { success: false, error: "지원하지 않는 Content-Type입니다." },
-      { status: 415 }
-    );
-  }
 
-  const result = ConsultationSchema.safeParse(rawData);
+    if (!selectedModel || !orderType) {
+      return NextResponse.json(
+        { success: false, error: "필수 항목이 누락되었습니다." },
+        { status: 422 }
+      );
+    }
 
-  if (!result.success) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "입력 데이터가 올바르지 않습니다.",
-        details: result.error.flatten().fieldErrors,
-      },
-      { status: 422 }
-    );
-  }
+    if (customerName.length > 100) {
+      return NextResponse.json(
+        { success: false, error: "이름은 100자를 초과할 수 없습니다." },
+        { status: 422 }
+      );
+    }
 
-  const data = result.data;
+    if (customerAddress.length > 500) {
+      return NextResponse.json(
+        { success: false, error: "주소는 500자를 초과할 수 없습니다." },
+        { status: 422 }
+      );
+    }
 
-  // 접수 번호 생성 (실제 서비스에서는 DB에 저장)
-  const consultationId = `NV-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    if (customerPhone && !/^[0-9\-+() ]{7,20}$/.test(customerPhone)) {
+      return NextResponse.json(
+        { success: false, error: "유효하지 않은 전화번호 형식입니다." },
+        { status: 422 }
+      );
+    }
 
-  return NextResponse.json(
-    {
-      success: true,
+    const record: ConsultationRecord = {
       consultationId,
-      message: "상담 신청이 완료되었습니다.",
-      data: {
-        ...data,
-        receivedAt: new Date().toISOString(),
-      },
-    },
-    { status: 201 }
-  );
+      selectedCategory,
+      selectedModel,
+      orderType,
+      paymentMethod,
+      installationType,
+      customerName,
+      customerPhone,
+      customerAddress,
+      customerAddressDetail,
+      selectedPyeong,
+      selectedController,
+      selectedMonitor,
+      rentalPrice,
+      purchasePrice,
+      pyeongLabel,
+      controllerLabel,
+      monitorLabel,
+      photos,
+      submittedAt,
+      receivedAt,
+    };
+
+    const consultations = readConsultations();
+    consultations.push(record);
+    saveConsultations(consultations);
+
+    return NextResponse.json(
+      { success: true, consultationId, message: "상담 신청이 완료되었습니다.", data: record },
+      { status: 201 }
+    );
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
 }

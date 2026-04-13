@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, type KeyboardEvent } from 'react';
 import Image from 'next/image';
 import { Camera } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
+import { cn } from '@/lib/utils';
 
 interface PhotoUploadSlotProps {
   label: string;
@@ -37,6 +38,13 @@ export default function PhotoUploadSlot({
     if (inputRef.current) inputRef.current.value = '';
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-1.5">
@@ -48,17 +56,19 @@ export default function PhotoUploadSlot({
         )}
       </div>
 
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={handleClick}
-        className={[
+        onKeyDown={handleKeyDown}
+        className={cn(
           'relative w-full rounded-2xl overflow-hidden',
           'border-2 border-dashed transition-all duration-200',
-          'aspect-[4/3]',
+          'aspect-[4/3] cursor-pointer',
           preview
             ? 'border-primary-500 bg-primary-50'
-            : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100',
-        ].join(' ')}
+            : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+        )}
       >
         {preview ? (
           <>
@@ -80,7 +90,7 @@ export default function PhotoUploadSlot({
             <span className="text-xs text-gray-400 font-medium">탭하여 추가</span>
           </div>
         )}
-      </button>
+      </div>
 
       <input
         ref={inputRef}

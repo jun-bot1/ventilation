@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* 화면 높이 기반 반응형 variant: 큰 폰(Pro Max 등) vs 작은 폰(Mini/SE 등) */
+@custom-variant tall (@media (min-height: 680px));
+
 @theme inline {
   /* TOSS Primary Blue */
   --color-primary-50: #EEF2FF;
