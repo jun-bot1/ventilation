@@ -16,6 +16,30 @@ Package manager is **pnpm** (enforced — npm/yarn will fail). Node >= 22.14.0.
 
 Pre-commit hooks run automatically via Husky + lint-staged (Prettier → ESLint → tsc on staged files). Commit messages must follow Conventional Commits (commitlint).
 
+## Deployment
+
+**배포는 Vercel을 사용합니다.** GitHub repo (`jun-bot1/ventilation`) `main` 브랜치가 Vercel에 연동되어 있어 **push 즉시 자동 배포**됩니다.
+
+- Production URL: **https://ventilation-phi.vercel.app/**
+- Repo: `https://github.com/jun-bot1/ventilation.git`
+- 배포 브랜치: `main`
+
+### 배포 절차 (항상 이 방식 사용)
+
+```bash
+git add <변경 파일>
+git commit -m "..."    # Conventional Commits
+git push origin main   # Vercel이 자동으로 빌드 & 배포
+```
+
+푸시 후 1~2분 이내 Vercel 대시보드에서 배포 상태가 "Ready"가 되면 운영 반영 완료.
+
+### 절대 사용하지 않는 방식
+
+- **`upload.sh` (닷홈 FTP 업로드 스크립트)**: 과거 닷홈 정적 호스팅용 잔재 스크립트입니다. Node.js 런타임이 없어 이 프로젝트 배포에 쓸 수 없습니다. 실행하지 마세요.
+- **`out/` 디렉토리 기반 정적 배포**: `next.config.ts`에 `output: 'export'` 설정이 없고, 서버 API route(`/api/consultation`, `/api/product-detail`)가 있어 정적 export 불가. `out/`은 과거 잔재이므로 참조하지 않습니다.
+- **Vercel CLI로 수동 `vercel deploy`**: 불필요. GitHub 연동으로 push만 하면 됩니다.
+
 ## Architecture
 
 **Next.js 16 App Router** with TypeScript strict mode. Pages are thin server components that render a single Template component.
