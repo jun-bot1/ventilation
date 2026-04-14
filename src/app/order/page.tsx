@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useConsultationStore } from '@/stores/consultation-store';
@@ -13,6 +13,11 @@ import type { OrderType } from '@/types';
 export default function OrderPage() {
   const router = useRouter();
   const { orderType, setOrderType, setStep, selectedModel } = useConsultationStore();
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const handleSelect = (type: OrderType) => {
     setOrderType(type);
@@ -25,10 +30,10 @@ export default function OrderPage() {
   };
 
   useEffect(() => {
-    if (!selectedModel) {
+    if (hydrated && !selectedModel) {
       router.replace('/');
     }
-  }, [selectedModel, router]);
+  }, [hydrated, selectedModel, router]);
 
   const result = useProductPrice(selectedModel);
 

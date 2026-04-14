@@ -28,6 +28,11 @@ export default function ReviewPage() {
   } = useConsultationStore();
   const isNewInstallation = installationType === 'new-building';
   const priceResult = useProductPrice(selectedModel);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const handleSubmit = async () => {
     if (isSubmitting || !selectedModel || !orderType) return;
@@ -78,12 +83,13 @@ export default function ReviewPage() {
   };
 
   useEffect(() => {
+    if (!hydrated) return;
     if (!selectedModel || !orderType) {
       router.replace('/');
     } else if (orderType === 'rental' && !paymentMethod) {
       router.replace('/order/payment');
     }
-  }, [selectedModel, orderType, paymentMethod, router]);
+  }, [hydrated, selectedModel, orderType, paymentMethod, router]);
 
   if (!selectedModel || !orderType) return null;
   if (orderType === 'rental' && !paymentMethod) return null;
