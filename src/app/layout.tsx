@@ -4,7 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "나비엔 환기 렌탈 | 제습환기 · 환기청정",
   description: "나비엔 제습환기청정기, 환기청정기 렌탈 및 구매 상담. 제휴카드 할인 혜택까지.",
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export const viewport: Viewport = {
