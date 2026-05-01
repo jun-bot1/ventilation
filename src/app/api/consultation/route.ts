@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import { sql, ensureSchema, type ConsultationRow } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -222,6 +222,48 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     console.error("[consultation:POST]", err);
+    const detail = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    return NextResponse.json(
+      { success: false, error: "서버 오류가 발생했습니다.", detail },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    await ensureSchema();
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "id 파라미터가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    const rows = (await sql`
+      SELECT photos FROM consultations WHERE consultation_id = ${id}
+    `) as { photos: Record<string, string> }[];
+
+    if (rows.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "해당 신청을 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+
+    const photoUrls = Object.values(rows[0].photos ?? {});
+    if (photoUrls.length > 0) {
+      await Promise.allSettled(photoUrls.map((url) => del(url)));
+    }
+
+    await sql`DELETE FROM consultations WHERE consultation_id = ${id}`;
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[consultation:DELETE]", err);
     const detail = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
     return NextResponse.json(
       { success: false, error: "서버 오류가 발생했습니다.", detail },

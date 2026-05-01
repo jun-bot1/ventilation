@@ -63,6 +63,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Consultation | null>(null);
   const [photoModal, setPhotoModal] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Consultation | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetch('/api/consultation')
@@ -73,6 +75,33 @@ export default function AdminPage() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(
+        `/api/consultation?id=${encodeURIComponent(deleteTarget.consultationId)}`,
+        { method: 'DELETE' }
+      );
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        alert(`삭제 실패: ${json.detail ?? json.error ?? '알 수 없는 오류'}`);
+        return;
+      }
+      setConsultations((prev) =>
+        prev.filter((c) => c.consultationId !== deleteTarget.consultationId)
+      );
+      if (selected?.consultationId === deleteTarget.consultationId) {
+        setSelected(null);
+      }
+      setDeleteTarget(null);
+    } catch (err) {
+      alert(`삭제 중 오류: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-dvh bg-gray-50">
@@ -107,6 +136,7 @@ export default function AdminPage() {
                     <th className="text-left px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">카드</th>
                     <th className="text-left px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">사진</th>
                     <th className="text-left px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">상세</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">삭제</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -153,6 +183,14 @@ export default function AdminPage() {
                             className="text-blue-600 hover:text-blue-800 font-medium text-xs"
                           >
                             상세보기
+                          </button>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <button
+                            onClick={() => setDeleteTarget(c)}
+                            className="text-red-600 hover:text-red-800 font-medium text-xs"
+                          >
+                            삭제
                           </button>
                         </td>
                       </tr>
@@ -253,6 +291,50 @@ export default function AdminPage() {
                   </div>
                 </Section>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/40">
+          <div
+            className="absolute inset-0"
+            onClick={() => !deleting && setDeleteTarget(null)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-xl w-[90%] max-w-sm overflow-hidden">
+            <div className="px-6 py-5">
+              <h2 className="text-base font-semibold text-gray-900 mb-2">
+                정말 삭제하시겠습니까?
+              </h2>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                <span className="font-medium text-gray-700">
+                  {deleteTarget.customerName || '(이름 없음)'}
+                </span>
+                님의 신청({deleteTarget.consultationId})이 영구적으로 삭제됩니다.
+                {Object.keys(deleteTarget.photos ?? {}).length > 0 && (
+                  <> 첨부 사진도 함께 삭제됩니다.</>
+                )}
+                <br />이 작업은 되돌릴 수 없습니다.
+              </p>
+            </div>
+            <div className="flex border-t border-gray-100">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="flex-1 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                취소
+              </button>
+              <div className="w-px bg-gray-100" />
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+                className="flex-1 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                {deleting ? '삭제 중...' : '삭제'}
+              </button>
             </div>
           </div>
         </div>
