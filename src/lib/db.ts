@@ -4,8 +4,16 @@ let _sql: NeonQueryFunction<false, false> | null = null;
 
 function getSql(): NeonQueryFunction<false, false> {
   if (!_sql) {
-    const url = process.env.DATABASE_URL;
-    if (!url) throw new Error("DATABASE_URL is not set");
+    const url =
+      process.env.DATABASE_URL ??
+      process.env.POSTGRES_URL ??
+      process.env.DATABASE_URL_UNPOOLED ??
+      process.env.POSTGRES_URL_NON_POOLING;
+    if (!url) {
+      throw new Error(
+        "Postgres connection string is not set (checked DATABASE_URL, POSTGRES_URL, DATABASE_URL_UNPOOLED, POSTGRES_URL_NON_POOLING)"
+      );
+    }
     _sql = neon(url);
   }
   return _sql;
