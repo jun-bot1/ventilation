@@ -222,8 +222,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     console.error("[consultation:POST]", err);
+    const detail = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
     return NextResponse.json(
-      { success: false, error: "서버 오류가 발생했습니다." },
+      { success: false, error: "서버 오류가 발생했습니다.", detail },
       { status: 500 }
     );
   }
